@@ -4,7 +4,6 @@ namespace App\Services;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
-use PhpAmqpLib\Channel\AMQPChannel;
 
 class RabbitMQService
 {

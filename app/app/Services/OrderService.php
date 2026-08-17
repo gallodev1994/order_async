@@ -42,4 +42,22 @@ class OrderService
 
       return $order;
    }
+
+   public function process(int $orderId): Order
+   {
+      // test ACK
+      //throw new \Exception('Simulated processing error');
+
+      $order = Order::findOrFail($orderId);
+
+      if ($order->status !== OrderStatus::PENDING) {
+         return $order;
+      }
+
+      $order->update([
+         'status' => OrderStatus::SUCCESS,
+      ]);
+
+      return $order;
+   }
 }
