@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\CreateOrderDto;
 use App\enums\OrderStatus;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\Order;
+use App\Services\OrderService;
 
 class OrderController extends Controller
 {
     public function index()
     {
-        $orders = DB::table('orders')->get();
+        $orders = App(OrderService::class)->list();
         return response()->json($orders, 200);
+    }
+
+    public function processed()
+    {
+        $orders = App(OrderService::class)->listByStatus(OrderStatus::SUCCESS);
+        return response()->json($orders);
     }
 
     public function store(Request $request)
@@ -22,13 +28,13 @@ class OrderController extends Controller
             'price' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $order = Order::create([
-            'customer' => $request->customer,
-            'price' => $request->price,
-            'status' => OrderStatus::PENDING,
-        ]);
+        $data = new CreateOrderDto(
+            customer: $request->customer,
+            price: (float) $request->price
+        );
 
-        $order->save();
-        return response()->json(['success' => true], 200);
+        $order = App(OrderService::class)->store($data);
+
+        return response()->json(['success' => true, 'order' => $order], 201);
     }
 }
